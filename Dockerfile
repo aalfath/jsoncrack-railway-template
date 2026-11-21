@@ -17,15 +17,15 @@ ENV NEXT_TELEMETRY_DISABLED=1 \
     NODE_OPTIONS=--max-old-space-size=3072 \
     CI=1
 
-RUN apk add --no-cache git libc6-compat && npm install -g pnpm@10.20.0
+RUN npm install -g pnpm@10.20.0
 
+# Source of the pinned release commit (content at a commit SHA never changes).
 WORKDIR /src
-RUN git init -q . && \
-    git remote add origin https://github.com/AykutSarac/jsoncrack.com.git && \
-    git fetch -q --depth 1 origin "${JSONCRACK_COMMIT}" && \
-    git checkout -q FETCH_HEAD && \
-    test "$(git rev-parse HEAD)" = "${JSONCRACK_COMMIT}" && \
-    rm -r .git
+RUN node -e 'fetch(process.argv[1]).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.arrayBuffer()}).then(b=>require("fs").writeFileSync("/tmp/src.tgz",Buffer.from(b)))' \
+      "https://codeload.github.com/AykutSarac/jsoncrack.com/tar.gz/${JSONCRACK_COMMIT}" && \
+    tar -xzf /tmp/src.tgz --strip-components=1 && \
+    rm /tmp/src.tgz && \
+    test -f apps/www/package.json
 
 # Only the web app and the workspace package it uses (jsoncrack-react).
 RUN pnpm install --frozen-lockfile --filter "www..."
