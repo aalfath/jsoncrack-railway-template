@@ -1,4 +1,4 @@
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template/jsoncrack?utm_medium=integration&utm_source=button&utm_campaign=jsoncrack)
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template/json-crack?utm_medium=integration&utm_source=button&utm_campaign=jsoncrack)
 
 # JSON Crack on Railway
 

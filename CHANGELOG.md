@@ -2,6 +2,12 @@
 
 Breaking changes come first in each entry.
 
+## v5.0.0-1 (2026-11-21)
+
+No breaking changes. No app or image change; nothing to redeploy.
+
+- README: the Deploy on Railway button now links to the published template code `json-crack` (it pointed at `jsoncrack`, which doesn't exist).
+
 ## v5.0.0 (2026-11-21)
 
 First release of the template.
