@@ -14,7 +14,7 @@ ARG NEXT_PUBLIC_NODE_LIMIT=800
 ARG NEXT_PUBLIC_DISABLE_EXTERNAL_MODE=true
 
 ENV NEXT_TELEMETRY_DISABLED=1 \
-    NODE_OPTIONS=--max-old-space-size=3072 \
+    NODE_OPTIONS=--max-old-space-size=2560 \
     CI=1
 
 RUN npm install -g pnpm@10.20.0
@@ -29,6 +29,12 @@ RUN node -e 'fetch(process.argv[1]).then(r=>{if(!r.ok)throw new Error("HTTP "+r.
 
 # Only the web app and the workspace package it uses (jsoncrack-react).
 RUN pnpm install --frozen-lockfile --filter "www..."
+
+# Keep the build small and predictable on any builder: no browser source maps, and a
+# fixed number of build workers (Next.js otherwise starts one per host CPU, which
+# runs out of memory on large build hosts).
+RUN sed -i 's/productionBrowserSourceMaps: true,/productionBrowserSourceMaps: false,\n  experimental: { cpus: 2, webpackMemoryOptimizations: true },/' apps/www/next.config.js && \
+    grep -q "cpus: 2" apps/www/next.config.js
 
 RUN printf 'NEXT_PUBLIC_NODE_LIMIT=%s\nNEXT_PUBLIC_DISABLE_EXTERNAL_MODE=%s\nNEXT_TELEMETRY_DISABLED=1\n' \
       "${NEXT_PUBLIC_NODE_LIMIT}" "${NEXT_PUBLIC_DISABLE_EXTERNAL_MODE}" > apps/www/.env.production.local && \

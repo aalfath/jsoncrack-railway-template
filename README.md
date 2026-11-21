@@ -21,6 +21,7 @@ What this repo adds to upstream:
 
 - nginx listens on Railway's `PORT` (8080 by default), with clean URLs for every page of the static export (`/editor`, `/converter/json-to-yaml`, …), gzip, long caching for hashed assets, and `/healthz` for Railway's health check.
 - `/robots.txt` keeps search engines out of your instance.
+- The build turns off browser source maps and caps Next.js at 2 build workers, so it fits in a few GB of memory on any builder.
 - Upstream's promotional banner and "self-hosted" pop-up are turned off (`NEXT_PUBLIC_DISABLE_EXTERNAL_MODE=true`).
 
 ## Variables
