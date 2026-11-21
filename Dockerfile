@@ -39,10 +39,18 @@ RUN sed -i 's/productionBrowserSourceMaps: true,/productionBrowserSourceMaps: fa
 RUN printf 'NEXT_PUBLIC_NODE_LIMIT=%s\nNEXT_PUBLIC_DISABLE_EXTERNAL_MODE=%s\nNEXT_TELEMETRY_DISABLED=1\n' \
       "${NEXT_PUBLIC_NODE_LIMIT}" "${NEXT_PUBLIC_DISABLE_EXTERNAL_MODE}" > apps/www/.env.production.local && \
     pnpm --filter "www..." run build && \
-    test -f apps/www/out/editor.html
+    test -f apps/www/out/editor.html && \
+    rm apps/www/out/CNAME apps/www/out/sitemap.xml apps/www/out/sitemap-0.xml
 
 # ---- Serve: nginx (unprivileged) on Railway's PORT ----
 FROM nginxinc/nginx-unprivileged:1.30.6-alpine@sha256:f5116ed4606f3eb015dd4a8e28cb9b351476dc0ad4bc6e9f93b19cec130cdf03
+
+# nginx would start one worker per host CPU (dozens on Railway hosts): two are plenty
+# for a static site.
+USER root
+RUN sed -i 's/^worker_processes .*/worker_processes  2;/' /etc/nginx/nginx.conf && \
+    grep -q "^worker_processes  2;" /etc/nginx/nginx.conf
+USER 101
 
 COPY --from=build /src/apps/www/out /usr/share/nginx/html
 COPY nginx/default.conf.template /etc/nginx/templates/default.conf.template
